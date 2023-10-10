@@ -8,14 +8,13 @@ Middleware & bootstrapper for [gRPC](https://grpc.io/docs/languages/go/) and [gr
 ## Installation
 - rk-boot: Bootstrapper base
 - rk-grpc: Bootstrapper for [gRPC](https://grpc.io/docs/languages/go/) & [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway)
+- [buf CLI](https://buf.build/docs/installation) 
 
 ```shell
 go get github.com/rookie-ninja/rk-boot/v2
 go get github.com/rookie-ninja/rk-grpc/v2
 
 go install google.golang.org/protobuf/cmd/protoc-gen-go
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 export PATH="$PATH:$(go env GOPATH)/bin"
 ```
