@@ -22,3 +22,7 @@ deps:
 build:
 	@echo "[build] Running build..."
 	@go build
+
+.PHONY: update
+update:
+	@go get -u; go mod tidy
