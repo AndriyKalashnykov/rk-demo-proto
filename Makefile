@@ -23,6 +23,11 @@ build:
 	@echo "[build] Running build..."
 	@go build
 
+.PHONY: run
+run: fmt build
+	@go run main.go
+
 .PHONY: update
 update:
+	@echo "[run] Running..."
 	@go get -u; go mod tidy
