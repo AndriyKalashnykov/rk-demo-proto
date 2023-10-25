@@ -5,8 +5,8 @@ go 1.21
 require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.0
 	github.com/rookie-ninja/rk-boot/v2 v2.2.19
-	github.com/rookie-ninja/rk-grpc/v2 v2.2.18
-	google.golang.org/grpc v1.58.3
+	github.com/rookie-ninja/rk-grpc/v2 v2.2.20
+	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0
 )
 
@@ -34,7 +34,7 @@ require (
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
-	github.com/rookie-ninja/rk-entry/v2 v2.2.18 // indirect
+	github.com/rookie-ninja/rk-entry/v2 v2.2.19 // indirect
 	github.com/rookie-ninja/rk-logger v1.2.13 // indirect
 	github.com/rookie-ninja/rk-query v1.2.14 // indirect
 	github.com/rs/cors v1.10.1 // indirect
@@ -49,7 +49,6 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.opentelemetry.io/contrib v1.20.0 // indirect
 	go.opentelemetry.io/otel v1.19.0 // indirect
-	go.opentelemetry.io/otel/exporters/jaeger v1.17.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.19.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.19.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.19.0 // indirect
