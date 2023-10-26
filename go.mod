@@ -4,8 +4,8 @@ go 1.21
 
 require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.0
-	github.com/rookie-ninja/rk-boot/v2 v2.2.19
-	github.com/rookie-ninja/rk-grpc/v2 v2.2.20
+	github.com/rookie-ninja/rk-boot/v2 v2.2.20
+	github.com/rookie-ninja/rk-grpc/v2 v2.2.21
 	google.golang.org/grpc v1.59.0
 	google.golang.org/protobuf v1.31.0
 )
