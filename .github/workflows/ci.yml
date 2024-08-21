@@ -28,10 +28,10 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
 
-      - name: Set up Buf
-        uses: bufbuild/buf-action@v1
-        with:
-          setup_only: true    
+      # - name: Set up Buf
+      #   uses: bufbuild/buf-action@v1
+      #   with:
+      #     setup_only: true    
 
       - name: Build [go${{ matrix.go-version }} - ${{ matrix.os }}]
         run: make all
