@@ -22,7 +22,7 @@ buf:
 	@buf generate --path api/v1
 
 .PHONY: test
-test:
+test: deps buf
 	go test ./.
 
 .PHONY: build

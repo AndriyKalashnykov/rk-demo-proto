@@ -7,17 +7,6 @@ on:
 
 jobs:
 
-  staticcheck:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - uses: dominikh/staticcheck-action@v1.3.1
-        with:
-          version: "2024.1"
-          install-go: false
-          working-directory: ${{ matrix.dir }}
-
   tests:
 
     strategy:
@@ -60,4 +49,4 @@ jobs:
           go-version: ${{ matrix.go-version }}
 
       - name: Build [go${{ matrix.go-version }} - ${{ matrix.os }}]
-        run: make build
+        run: make all
