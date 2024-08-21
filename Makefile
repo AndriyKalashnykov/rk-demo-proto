@@ -1,5 +1,5 @@
 .PHONY: all
-all: fmt buf deps build
+all: fmt deps buf test build
 
 .PHONY: fmt
 fmt:
@@ -7,19 +7,26 @@ fmt:
 	@gofmt -s -w . 2>&1
 	@echo "------------------------------------[Done]"
 
+.PHONY: deps
+deps:
+	@echo "[deps] Running deps..."
+	@go install github.com/bufbuild/buf/cmd/buf@latest
+	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
+
 .PHONY: buf
 buf:
 	@echo "[buf] Running buf..."
 	@buf generate --path api/v1
 
-.PHONY: deps
-deps:
-	@echo "[deps] Running deps..."
-	@go install google.golang.org/protobuf/cmd/protoc-gen-go
-	@go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
+.PHONY: test
+test:
+	go test ./.
 
 .PHONY: build
-build:
+build: deps buf test
 	@echo "[build] Running build..."
 	@go build
 
