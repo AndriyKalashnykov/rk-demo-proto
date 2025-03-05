@@ -2,7 +2,7 @@ module github.com/AndriyKalashnykov/rk-demo-proto
 
 go 1.23.0
 
-toolchain go1.23.6
+toolchain go1.24.1
 
 require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
