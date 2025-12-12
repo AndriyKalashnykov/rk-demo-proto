@@ -7,7 +7,7 @@ require (
 	github.com/rookie-ninja/rk-boot/v2 v2.2.22
 	github.com/rookie-ninja/rk-grpc/v2 v2.2.22
 	google.golang.org/grpc v1.77.0
-	google.golang.org/protobuf v1.36.10
+	google.golang.org/protobuf v1.36.11
 )
 
 require (
