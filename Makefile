@@ -41,7 +41,7 @@ buf:
 #test: @ Run unit tests
 test: deps buf
 	@echo "[test] Running tests..."
-	@go test ./...
+	@go test $$(go list ./... | grep -v /api/gen/) -v
 	@echo "------------------------------------[Done]"
 
 #build: @ Build the Go binary
