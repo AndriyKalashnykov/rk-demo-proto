@@ -5,6 +5,13 @@ run-name: CI
 on:
   push:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
 
   builds:
@@ -31,7 +38,7 @@ jobs:
       # - name: Set up Buf
       #   uses: bufbuild/buf-action@v1
       #   with:
-      #     setup_only: true    
+      #     setup_only: true
 
       - name: Build [go${{ matrix.go-version }} - ${{ matrix.os }}]
-        run: make all
+        run: make ci
