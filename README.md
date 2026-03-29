@@ -1,203 +1,89 @@
-# Example
-Middleware & bootstrapper for [gRPC](https://grpc.io/docs/languages/go/) and [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway).
+[![CI](https://github.com/AndriyKalashnykov/rk-demo-proto/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AndriyKalashnykov/rk-demo-proto/actions/workflows/ci.yml)
+[![Hits](https://hits.sh/github.com/AndriyKalashnykov/rk-demo-proto.svg?view=today-total&style=plastic)](https://hits.sh/github.com/AndriyKalashnykov/rk-demo-proto/)
+[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://app.renovatebot.com/dashboard#github/AndriyKalashnykov/rk-demo-proto)
 
-## Documentation
-- [Github](https://github.com/rookie-ninja/rk-grpc)
-- [Official Docs](https://docs.rkdev.info)
-- [GRPC](https://grpc.io/docs/languages/go/quickstart/)
+# rk-demo-proto
 
-## Installation
-- rk-boot: Bootstrapper base
-- rk-grpc: Bootstrapper for [gRPC](https://grpc.io/docs/languages/go/) & [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway)
-- [buf CLI](https://buf.build/docs/installation) 
+Go gRPC microservice demo using [rk-boot](https://github.com/rookie-ninja/rk-boot) bootstrapper with [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway). Exposes a `Greeter` service via both gRPC and REST, with built-in Swagger UI, Prometheus metrics, and logging middleware.
 
-```shell
-go get github.com/rookie-ninja/rk-boot/v2
-go get github.com/rookie-ninja/rk-grpc/v2
+## Quick Start
 
-go install google.golang.org/protobuf/cmd/protoc-gen-go
-go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
-export PATH="$PATH:$(go env GOPATH)/bin"
+```bash
+make deps      # install protobuf/gRPC toolchain
+make buf       # generate protobuf/gRPC stubs
+make build     # build the Go binary
+make test      # run unit tests
+make run       # format, build, and run the application
 ```
 
-## Quick start
-### 1.Prepare .proto files
-- api/v1/greeter.proto
+## Prerequisites
 
-```protobuf
-syntax = "proto3";
+| Tool | Version | Purpose |
+|------|---------|---------|
+| [Go](https://go.dev/dl/) | 1.26+ | Language runtime and compiler |
+| [GNU Make](https://www.gnu.org/software/make/) | 3.81+ | Build orchestration |
+| [buf CLI](https://buf.build/docs/installation) | 1.66+ | Protobuf code generation |
+| [Git](https://git-scm.com/) | 2.0+ | Version control |
+| [act](https://github.com/nektos/act) | 0.2+ | Run GitHub Actions locally (optional) |
 
-package api.v1;
+Install all required dependencies:
 
-option go_package = "api/v1/hello";
-
-service Greeter {
-  rpc Hello (HelloRequest) returns (HelloResponse) {}
-}
-
-message HelloRequest {}
-
-message HelloResponse {
-  string Message = 1;
-}
+```bash
+make deps
 ```
 
-- api/v1/gw_mapping.yaml
+## Available Make Targets
 
-```yaml
-type: google.api.Service
-config_version: 3
+Run `make help` to see all available targets.
 
-# Please refer google.api.Http in third-party/googleapis/google/api/http.proto file for details.
-http:
-  rules:
-    - selector: api.v1.Greeter.Hello
-      get: /v1/hello
+### Build & Run
+
+| Target | Description |
+|--------|-------------|
+| `make deps` | Install pinned protobuf/gRPC toolchain |
+| `make buf` | Generate protobuf/gRPC stubs with buf |
+| `make fmt` | Format Go source files |
+| `make lint` | Run golangci-lint |
+| `make test` | Run unit tests |
+| `make build` | Build the Go binary |
+| `make run` | Format, build, and run the application |
+| `make update` | Update Go dependencies |
+| `make clean` | Remove generated files and build artifacts |
+
+### CI
+
+| Target | Description |
+|--------|-------------|
+| `make ci` | Full CI pipeline: deps, buf, lint, test, build |
+| `make ci-run` | Run GitHub Actions workflow locally via [act](https://github.com/nektos/act) |
+
+### Utilities
+
+| Target | Description |
+|--------|-------------|
+| `make release V=x.y.z` | Tag a semver release |
+| `make renovate-validate` | Validate Renovate configuration |
+
+## Project Structure
+
+```
+main.go              # Application entry point (registers gRPC server)
+boot.yaml            # rk-boot configuration (port, middleware, Swagger, Prometheus)
+buf.yaml             # buf module definition
+buf.gen.yaml         # buf code generation config
+api/v1/              # Protobuf definitions and gw_mapping
+api/gen/v1/          # Generated Go code (do not edit)
+third-party/         # Third-party proto dependencies (googleapis)
+Makefile             # Build, test, CI targets
+.github/workflows/   # CI and cleanup workflows
 ```
 
-- buf.yaml
+## CI/CD
 
-```yaml
-version: v1beta1
-name: github.com/rk-dev/rk-boot
-build:
-  roots:
-    - api
-    - third-party/googleapis
-```
+GitHub Actions runs on every push to `main`, tags `v*`, and pull requests.
 
-- buf.gen.yaml
+| Job | Triggers | Steps |
+|-----|----------|-------|
+| **ci** | push (main), tags (v*), PR | Lint, Test, Build |
 
-```yaml
-version: v1beta1
-plugins:
-  - name: go
-    out: api/gen
-    opt:
-     - paths=source_relative
-  - name: go-grpc
-    out: api/gen
-    opt:
-      - paths=source_relative
-      - require_unimplemented_servers=false
-  - name: grpc-gateway
-    out: api/gen
-    opt:
-      - paths=source_relative
-      - grpc_api_configuration=api/v1/gw_mapping.yaml
-      - allow_repeated_fields_in_body=true
-      - generate_unbound_methods=true
-  - name: openapiv2
-    out: api/gen
-    opt:
-      - grpc_api_configuration=api/v1/gw_mapping.yaml
-      - allow_repeated_fields_in_body=true
-```
-
-### 2.Generate .pb.go files with [buf](https://docs.buf.build/introduction)
-```
-$ buf generate --path api/v1
-```
-
-### 4.Create boot.yaml
-Important note: rk-boot will bind grpc and grpc-gateway in the same port which we think is a convenient way.
-
-As a result, grpc-gateway will automatically be started.
-
-```yaml
----
-grpc:
-  - name: rk-demo
-    port: 8080
-    enabled: true
-    commonService:
-      enabled: true
-    sw:
-      enabled: true
-    docs:
-      enabled: true
-    prom:
-      enabled: true
-    middleware:
-      logging:
-        enabled: true
-      prom:
-        enabled: true
-```
-
-### 5.Create main.go
-```go
-// Copyright (c) 2021 rookie-ninja
-//
-// Use of this source code is governed by an Apache-style
-// license that can be found in the LICENSE file.
-
-package main
-
-import (
-	"context"
-	"github.com/rookie-ninja/rk-boot/v2"
-	"github.com/rookie-ninja/rk-demo/api/gen/v1"
-	"github.com/rookie-ninja/rk-grpc/v2/boot"
-	"google.golang.org/grpc"
-)
-
-func main() {
-	boot := rkboot.NewBoot()
-
-	// register grpc
-	entry := rkgrpc.GetGrpcEntry("rk-demo")
-	entry.AddRegFuncGrpc(registerGreeter)
-	entry.AddRegFuncGw(greeter.RegisterGreeterHandlerFromEndpoint)
-
-	// Bootstrap
-	boot.Bootstrap(context.TODO())
-
-	// Wait for shutdown sig
-	boot.WaitForShutdownSig(context.TODO())
-}
-
-func registerGreeter(server *grpc.Server) {
-	greeter.RegisterGreeterServer(server, &GreeterServer{})
-}
-
-//GreeterServer GreeterServer struct
-type GreeterServer struct{}
-
-// Hello response with hello message
-func (server *GreeterServer) Hello(_ context.Context, _ *greeter.HelloRequest) (*greeter.HelloResponse, error) {
-	return &greeter.HelloResponse{
-		Message: "hello!",
-	}, nil
-}
-```
-
-### 6.Start server
-
-```go
-$ go run main.go
-```
-
-### 7.Validation
-- Call API:
-
-```shell script
-$ curl -X GET localhost:8080/v1/hello
-{"Message":"hello!"}
-
-$ curl -X GET localhost:8080/rk/v1/ready
-{
-  "ready": true
-}
-
-$ curl -X GET localhost:8080/rk/v1/alive
-{
-  "alive": true
-}
-```
-
-- Swagger UI: [http://localhost:8080/sw](http://localhost:8080/sw)
-
-- Docs UI via: [http://localhost:8080/docs](http://localhost:8080/docs)
-
-- Prometheus client: [http://localhost:8080/metrics](http://localhost:8080/metrics)
+[Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with platform automerge enabled.

@@ -10,6 +10,7 @@ Go gRPC microservice demo using [rk-boot](https://github.com/rookie-ninja/rk-boo
 - **Framework**: rk-boot v2 + rk-grpc v2
 - **Protocol**: gRPC with grpc-gateway (REST)
 - **Code Generation**: buf CLI (protobuf/gRPC stubs)
+- **Linting**: golangci-lint
 - **CI**: GitHub Actions
 
 ## Project Structure
@@ -33,14 +34,29 @@ make help      # List all available targets
 make deps      # Install pinned protobuf/gRPC toolchain
 make buf       # Generate protobuf/gRPC stubs
 make fmt       # Format Go source files
+make lint      # Run golangci-lint
 make test      # Run unit tests (excludes generated code)
-make build     # Full build (deps + buf + test + binary)
+make build     # Build the Go binary
 make run       # Format, build, and run the application
-make ci        # Full CI pipeline (fmt, deps, buf, test, build)
+make ci        # Full CI pipeline (deps, buf, lint, test, build)
+make ci-run    # Run GitHub Actions workflow locally via act
 make clean     # Remove generated files and build artifacts
 make update    # Update Go dependencies
 make release   # Tag a semver release (usage: make release V=1.2.3)
 ```
+
+## CI
+
+GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push to `main`, tags `v*`, and pull requests:
+1. Checkout
+2. Setup Go from `go.mod`
+3. Lint (`make lint`)
+4. Test (`make test`)
+5. Build (`make build`)
+
+Concurrency is enabled with `cancel-in-progress: true`. Actions are pinned to commit SHAs.
+
+A separate cleanup workflow (`.github/workflows/cleanup-runs.yml`) removes old workflow runs weekly.
 
 ## Key Conventions
 

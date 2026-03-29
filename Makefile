@@ -5,13 +5,16 @@ BUF_VERSION          := v1.66.1
 PROTOC_GEN_GO_VER    := v1.36.11
 PROTOC_GEN_GRPC_VER  := v1.6.1
 GRPC_GW_VERSION      := v2.28.0
+GOLANGCI_VERSION     := 2.11.1
+ACT_VERSION          := 0.2.86
 NVM_VERSION          := 0.40.4
 
 # ── Derived ───────────────────────────────────────────────────────────
 MODULE   := $(shell go list -m)
 BIN_NAME := $(notdir $(MODULE))
 
-.PHONY: help fmt deps buf test build run update clean ci release renovate-bootstrap renovate-validate
+.PHONY: help fmt deps deps-act buf lint test build run update clean ci ci-run \
+	release renovate-bootstrap renovate-validate
 
 #help: @ List available tasks
 help:
@@ -32,11 +35,24 @@ deps:
 	@command -v protoc-gen-go-grpc   >/dev/null 2>&1 || go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@$(PROTOC_GEN_GRPC_VER)
 	@command -v protoc-gen-grpc-gateway >/dev/null 2>&1 || go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@$(GRPC_GW_VERSION)
 	@command -v protoc-gen-openapiv2    >/dev/null 2>&1 || go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@$(GRPC_GW_VERSION)
+	@command -v golangci-lint  >/dev/null 2>&1 || go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v$(GOLANGCI_VERSION)
+
+#deps-act: @ Install act for local CI
+deps-act: deps
+	@command -v act >/dev/null 2>&1 || { echo "Installing act $(ACT_VERSION)..."; \
+		curl -sSfL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin v$(ACT_VERSION); \
+	}
 
 #buf: @ Generate protobuf/gRPC stubs with buf
-buf:
+buf: deps
 	@echo "[buf] Running buf generate..."
 	@buf generate --path api/v1
+	@echo "------------------------------------[Done]"
+
+#lint: @ Run golangci-lint (excludes generated code)
+lint: deps buf
+	@echo "[lint] Running golangci-lint..."
+	@golangci-lint run .
 	@echo "------------------------------------[Done]"
 
 #test: @ Run unit tests
@@ -46,7 +62,7 @@ test: deps buf
 	@echo "------------------------------------[Done]"
 
 #build: @ Build the Go binary
-build: deps buf test
+build: deps buf
 	@echo "[build] Building $(BIN_NAME)..."
 	@go build -o $(BIN_NAME) .
 	@echo "------------------------------------[Done]"
@@ -69,9 +85,14 @@ clean:
 	@rm -f $(BIN_NAME)
 	@echo "------------------------------------[Done]"
 
-#ci: @ Run full CI pipeline (fmt, deps, buf, test, build)
-ci: fmt deps buf test build
+#ci: @ Run full CI pipeline (deps, buf, lint, test, build)
+ci: deps buf lint test build
 	@echo "[ci] All checks passed."
+
+#ci-run: @ Run GitHub Actions workflow locally using act
+ci-run: deps-act
+	@act push --container-architecture linux/amd64 \
+		--artifact-server-path /tmp/act-artifacts
 
 #release: @ Tag a semver release (usage: make release V=1.2.3)
 release:
