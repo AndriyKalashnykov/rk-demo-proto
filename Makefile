@@ -5,12 +5,13 @@ BUF_VERSION          := v1.66.1
 PROTOC_GEN_GO_VER    := v1.36.11
 PROTOC_GEN_GRPC_VER  := v1.6.1
 GRPC_GW_VERSION      := v2.28.0
+NVM_VERSION          := 0.40.4
 
 # ── Derived ───────────────────────────────────────────────────────────
 MODULE   := $(shell go list -m)
 BIN_NAME := $(notdir $(MODULE))
 
-.PHONY: help fmt deps buf test build run update clean ci release
+.PHONY: help fmt deps buf test build run update clean ci release renovate-bootstrap renovate-validate
 
 #help: @ List available tasks
 help:
@@ -84,3 +85,17 @@ release:
 	@git tag -a "v$(V)" -m "Release v$(V)"
 	@git push origin "v$(V)"
 	@echo "------------------------------------[Done]"
+
+#renovate-bootstrap: @ Install nvm and npm for Renovate
+renovate-bootstrap:
+	@command -v node >/dev/null 2>&1 || { \
+		echo "Installing nvm $(NVM_VERSION)..."; \
+		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v$(NVM_VERSION)/install.sh | bash; \
+		export NVM_DIR="$$HOME/.nvm"; \
+		[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh"; \
+		nvm install --lts; \
+	}
+
+#renovate-validate: @ Validate Renovate configuration
+renovate-validate: renovate-bootstrap
+	@npx --yes renovate --platform=local
