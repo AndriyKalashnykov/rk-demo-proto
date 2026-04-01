@@ -10,8 +10,6 @@ Go gRPC microservice demo using [rk-boot](https://github.com/rookie-ninja/rk-boo
 
 ```bash
 make deps      # install protobuf/gRPC toolchain
-make buf       # generate protobuf/gRPC stubs
-make build     # build the Go binary
 make test      # run unit tests
 make run       # format, build, and run the application
 ```
@@ -24,6 +22,7 @@ make run       # format, build, and run the application
 | [GNU Make](https://www.gnu.org/software/make/) | 3.81+ | Build orchestration |
 | [buf CLI](https://buf.build/docs/installation) | 1.66+ | Protobuf code generation |
 | [Git](https://git-scm.com/) | 2.0+ | Version control |
+| [gvm](https://github.com/moovweb/gvm) | latest | Go version management (optional, auto-installed by `make deps`) |
 | [act](https://github.com/nektos/act) | 0.2+ | Run GitHub Actions locally (optional) |
 
 Install all required dependencies:
@@ -40,10 +39,12 @@ Run `make help` to see all available targets.
 
 | Target | Description |
 |--------|-------------|
+| `make help` | List available tasks |
 | `make deps` | Install pinned protobuf/gRPC toolchain |
 | `make buf` | Generate protobuf/gRPC stubs with buf |
-| `make fmt` | Format Go source files |
-| `make lint` | Run golangci-lint |
+| `make format` | Format Go source files |
+| `make fmt` | Format Go source files (alias for format) |
+| `make lint` | Run golangci-lint (excludes generated code) |
 | `make test` | Run unit tests |
 | `make build` | Build the Go binary |
 | `make run` | Format, build, and run the application |
@@ -54,13 +55,16 @@ Run `make help` to see all available targets.
 
 | Target | Description |
 |--------|-------------|
-| `make ci` | Full CI pipeline: deps, buf, lint, test, build |
+| `make ci` | Full CI pipeline: lint, test, build |
 | `make ci-run` | Run GitHub Actions workflow locally via [act](https://github.com/nektos/act) |
 
 ### Utilities
 
 | Target | Description |
 |--------|-------------|
+| `make deps-check` | Show required Go version and tool status |
+| `make deps-act` | Install act for local CI |
+| `make deps-renovate` | Install nvm and npm for Renovate |
 | `make release V=x.y.z` | Tag a semver release |
 | `make renovate-validate` | Validate Renovate configuration |
 
@@ -84,6 +88,9 @@ GitHub Actions runs on every push to `main`, tags `v*`, and pull requests.
 
 | Job | Triggers | Steps |
 |-----|----------|-------|
-| **ci** | push (main), tags (v*), PR | Lint, Test, Build |
+| **static-check** | push (main), tags (v*), PR | Checkout, Setup Go, Lint |
+| **build** | after static-check passes | Checkout, Setup Go, Build |
+| **test** | after static-check passes | Checkout, Setup Go, Test |
+| **cleanup** | weekly schedule (Sunday) | Delete old workflow runs |
 
 [Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with platform automerge enabled.
