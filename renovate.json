@@ -28,6 +28,48 @@
     "automerge": true,
     "minimumReleaseAge": "0 days"
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track golangci-lint version in Makefile",
+      "managerFilePatterns": ["/^Makefile$/"],
+      "matchStrings": ["GOLANGCI_VERSION\\s*:=\\s*(?<currentValue>[0-9.]+)\\n"],
+      "depNameTemplate": "github.com/golangci/golangci-lint",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "Track buf version in Makefile",
+      "managerFilePatterns": ["/^Makefile$/"],
+      "matchStrings": ["BUF_VERSION\\s*:=\\s*v(?<currentValue>[0-9.]+)\\n"],
+      "depNameTemplate": "bufbuild/buf",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "Track act version in Makefile",
+      "managerFilePatterns": ["/^Makefile$/"],
+      "matchStrings": ["ACT_VERSION\\s*:=\\s*(?<currentValue>[0-9.]+)\\n"],
+      "depNameTemplate": "nektos/act",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "Track govulncheck version in Makefile",
+      "managerFilePatterns": ["/^Makefile$/"],
+      "matchStrings": ["GOVULNCHECK_VERSION\\s*:=\\s*v(?<currentValue>[0-9.]+)\\n"],
+      "depNameTemplate": "golang/vuln",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "Track gitleaks version in Makefile",
+      "managerFilePatterns": ["/^Makefile$/"],
+      "matchStrings": ["GITLEAKS_VERSION\\s*:=\\s*(?<currentValue>[0-9.]+)\\n"],
+      "depNameTemplate": "gitleaks/gitleaks",
+      "datasourceTemplate": "github-releases"
+    }
+  ],
   "packageRules": [
     {
       "description": "Wait 3 days before automerging major updates",

@@ -46,6 +46,9 @@ Run `make help` to see all available targets.
 | `make format` | Format Go source files |
 | `make fmt` | Format Go source files (alias for format) |
 | `make lint` | Run golangci-lint (excludes generated code) |
+| `make vulncheck` | Run Go vulnerability scanner |
+| `make secrets` | Scan for leaked secrets |
+| `make static-check` | Run all static analysis (lint, vulncheck, secrets) |
 | `make test` | Run unit tests |
 | `make build` | Build the Go binary |
 | `make run` | Format, build, and run the application |
@@ -56,7 +59,7 @@ Run `make help` to see all available targets.
 
 | Target | Description |
 |--------|-------------|
-| `make ci` | Run full CI pipeline (format, lint, test, build) |
+| `make ci` | Run full CI pipeline (format, static-check, test, build) |
 | `make ci-run` | Run GitHub Actions workflow locally using [act](https://github.com/nektos/act) |
 
 ### Utilities
@@ -75,7 +78,7 @@ GitHub Actions runs on every push to `main`, tags `v*`, and pull requests.
 
 | Job | Triggers | Steps |
 |-----|----------|-------|
-| **static-check** | push (main), tags (v*), PR | Checkout, Setup Go, Lint |
+| **static-check** | push (main), tags (v*), PR | Checkout, Setup Go, Static check (lint, vulncheck, secrets) |
 | **build** | after static-check passes | Checkout, Setup Go, Build |
 | **test** | after static-check passes | Checkout, Setup Go, Test |
 | **cleanup** | weekly schedule (Sunday) | Delete old workflow runs |

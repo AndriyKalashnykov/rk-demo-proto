@@ -34,8 +34,8 @@ jobs:
           go-version-file: go.mod
           cache: true
 
-      - name: Lint
-        run: make lint
+      - name: Static check
+        run: make static-check
 
   build:
     needs: [static-check]

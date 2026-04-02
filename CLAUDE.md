@@ -11,6 +11,7 @@ Go gRPC microservice demo using [rk-boot](https://github.com/rookie-ninja/rk-boo
 - **Protocol**: gRPC with grpc-gateway (REST)
 - **Code Generation**: buf CLI (protobuf/gRPC stubs)
 - **Linting**: golangci-lint
+- **Security**: govulncheck, gitleaks
 - **CI**: GitHub Actions
 
 ## Project Structure
@@ -39,10 +40,13 @@ make buf               # Generate protobuf/gRPC stubs
 make format            # Format Go source files
 make fmt               # Format Go source files (alias for format)
 make lint              # Run golangci-lint (excludes generated code)
+make vulncheck         # Run Go vulnerability scanner
+make secrets           # Scan for leaked secrets
+make static-check      # Run all static analysis (lint, vulncheck, secrets)
 make test              # Run unit tests (excludes generated code)
 make build             # Build the Go binary
 make run               # Format, build, and run the application
-make ci                # Full CI pipeline (format, lint, test, build)
+make ci                # Full CI pipeline (format, static-check, test, build)
 make ci-run            # Run GitHub Actions workflow locally via act
 make clean             # Remove generated files and build artifacts
 make update            # Update Go dependencies
@@ -56,7 +60,7 @@ GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push to `main
 
 | Job | Depends on | Steps |
 |-----|-----------|-------|
-| `static-check` | — | Checkout, Setup Go, Lint |
+| `static-check` | — | Checkout, Setup Go, Static check (lint, vulncheck, secrets) |
 | `build` | `static-check` | Checkout, Setup Go, Build |
 | `test` | `static-check` | Checkout, Setup Go, Test |
 

@@ -1,12 +1,14 @@
 .DEFAULT_GOAL := help
 
 # ── Pinned dependency versions ────────────────────────────────────────
-BUF_VERSION          := v1.66.1
+BUF_VERSION          := v1.67.0
 PROTOC_GEN_GO_VER    := v1.36.11
 PROTOC_GEN_GRPC_VER  := v1.6.1
 GRPC_GW_VERSION      := v2.28.0
-GOLANGCI_VERSION     := 2.11.1
-ACT_VERSION          := 0.2.86
+GOLANGCI_VERSION     := 2.11.4
+GOVULNCHECK_VERSION  := v1.1.4
+GITLEAKS_VERSION     := 8.30.1
+ACT_VERSION          := 0.2.87
 NVM_VERSION          := 0.40.4
 NODE_VERSION         := 22
 GVM_SHA              := dd652539fa4b771840846f8319fad303c7d0a8d2 # v1.0.22
@@ -66,6 +68,11 @@ deps:
 	@$(call go-exec,command -v protoc-gen-grpc-gateway) >/dev/null 2>&1 || $(call go-exec,go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@$(GRPC_GW_VERSION))
 	@$(call go-exec,command -v protoc-gen-openapiv2)    >/dev/null 2>&1 || $(call go-exec,go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@$(GRPC_GW_VERSION))
 	@$(call go-exec,command -v golangci-lint)  >/dev/null 2>&1 || $(call go-exec,go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v$(GOLANGCI_VERSION))
+	@$(call go-exec,command -v govulncheck)   >/dev/null 2>&1 || $(call go-exec,go install golang.org/x/vuln/cmd/govulncheck@$(GOVULNCHECK_VERSION))
+	@command -v gitleaks >/dev/null 2>&1 || { echo "Installing gitleaks $(GITLEAKS_VERSION)..."; \
+		curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v$(GITLEAKS_VERSION)/gitleaks_$(GITLEAKS_VERSION)_linux_x64.tar.gz | \
+		sudo tar xz -C /usr/local/bin gitleaks; \
+	}
 
 #deps-check: @ Show required Go version and tool status
 deps-check:
@@ -105,6 +112,22 @@ lint: deps buf
 	@$(call go-exec,golangci-lint run .)
 	@echo "------------------------------------[Done]"
 
+#vulncheck: @ Run Go vulnerability scanner
+vulncheck: deps buf
+	@echo "[vulncheck] Running govulncheck..."
+	@$(call go-exec,govulncheck $$(go list ./... | grep -v /api/gen/))
+	@echo "------------------------------------[Done]"
+
+#secrets: @ Scan for leaked secrets
+secrets: deps
+	@echo "[secrets] Running gitleaks..."
+	@gitleaks detect --source . --no-banner -v
+	@echo "------------------------------------[Done]"
+
+#static-check: @ Run all static analysis (lint, vulncheck, secrets)
+static-check: lint vulncheck secrets
+	@echo "[static-check] All static checks passed."
+
 #test: @ Run unit tests
 test: deps buf
 	@echo "[test] Running tests..."
@@ -134,8 +157,8 @@ clean:
 	@rm -f $(BIN_NAME)
 	@echo "------------------------------------[Done]"
 
-#ci: @ Run full CI pipeline (format, lint, test, build)
-ci: format lint test build
+#ci: @ Run full CI pipeline (format, static-check, test, build)
+ci: format static-check test build
 	@echo "[ci] All checks passed."
 
 #ci-run: @ Run GitHub Actions workflow locally using act
@@ -161,5 +184,6 @@ release: deps
 renovate-validate: deps-renovate
 	@npx --yes renovate --platform=local
 
-.PHONY: help format fmt deps deps-check deps-act deps-renovate buf lint test \
-	build run update clean ci ci-run release renovate-validate
+.PHONY: help format fmt deps deps-check deps-act deps-renovate buf lint \
+	vulncheck secrets static-check test build run update clean ci ci-run \
+	release renovate-validate
