@@ -55,8 +55,8 @@ Run `make help` to see all available targets.
 
 | Target | Description |
 |--------|-------------|
-| `make ci` | Full CI pipeline: lint, test, build |
-| `make ci-run` | Run GitHub Actions workflow locally via [act](https://github.com/nektos/act) |
+| `make ci` | Run full CI pipeline (format, lint, test, build) |
+| `make ci-run` | Run GitHub Actions workflow locally using [act](https://github.com/nektos/act) |
 
 ### Utilities
 
@@ -65,8 +65,21 @@ Run `make help` to see all available targets.
 | `make deps-check` | Show required Go version and tool status |
 | `make deps-act` | Install act for local CI |
 | `make deps-renovate` | Install nvm and npm for Renovate |
-| `make release V=x.y.z` | Tag a semver release |
+| `make release V=x.y.z` | Tag a semver release (usage: make release V=1.2.3) |
 | `make renovate-validate` | Validate Renovate configuration |
+
+## CI/CD
+
+GitHub Actions runs on every push to `main`, tags `v*`, and pull requests.
+
+| Job | Triggers | Steps |
+|-----|----------|-------|
+| **static-check** | push (main), tags (v*), PR | Checkout, Setup Go, Lint |
+| **build** | after static-check passes | Checkout, Setup Go, Build |
+| **test** | after static-check passes | Checkout, Setup Go, Test |
+| **cleanup** | weekly schedule (Sunday) | Delete old workflow runs |
+
+[Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with platform automerge enabled.
 
 ## Project Structure
 
@@ -81,16 +94,3 @@ third-party/         # Third-party proto dependencies (googleapis)
 Makefile             # Build, test, CI targets
 .github/workflows/   # CI and cleanup workflows
 ```
-
-## CI/CD
-
-GitHub Actions runs on every push to `main`, tags `v*`, and pull requests.
-
-| Job | Triggers | Steps |
-|-----|----------|-------|
-| **static-check** | push (main), tags (v*), PR | Checkout, Setup Go, Lint |
-| **build** | after static-check passes | Checkout, Setup Go, Build |
-| **test** | after static-check passes | Checkout, Setup Go, Test |
-| **cleanup** | weekly schedule (Sunday) | Delete old workflow runs |
-
-[Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with platform automerge enabled.

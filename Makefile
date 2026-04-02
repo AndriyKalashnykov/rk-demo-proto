@@ -108,7 +108,7 @@ lint: deps buf
 #test: @ Run unit tests
 test: deps buf
 	@echo "[test] Running tests..."
-	@$(call go-exec,go test $$(go list ./... | grep -v /api/gen/) -v)
+	@$(call go-exec,go test -race $$(go list ./... | grep -v /api/gen/) -v)
 	@echo "------------------------------------[Done]"
 
 #build: @ Build the Go binary
@@ -134,8 +134,8 @@ clean:
 	@rm -f $(BIN_NAME)
 	@echo "------------------------------------[Done]"
 
-#ci: @ Run full CI pipeline (lint, test, build)
-ci: lint test build
+#ci: @ Run full CI pipeline (format, lint, test, build)
+ci: format lint test build
 	@echo "[ci] All checks passed."
 
 #ci-run: @ Run GitHub Actions workflow locally using act

@@ -42,7 +42,7 @@ make lint              # Run golangci-lint (excludes generated code)
 make test              # Run unit tests (excludes generated code)
 make build             # Build the Go binary
 make run               # Format, build, and run the application
-make ci                # Full CI pipeline (lint, test, build)
+make ci                # Full CI pipeline (format, lint, test, build)
 make ci-run            # Run GitHub Actions workflow locally via act
 make clean             # Remove generated files and build artifacts
 make update            # Update Go dependencies
