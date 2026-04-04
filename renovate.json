@@ -4,9 +4,6 @@
     "config:best-practices",
     ":semanticCommitType(chore)"
   ],
-  "postUpdateOptions": [
-    "gomodTidy"
-  ],
   "commitMessagePrefix": "chore(all): ",
   "commitMessageAction": "update",
   "commitBody": "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
@@ -20,7 +17,6 @@
   "automergeType": "branch",
   "automergeStrategy": "squash",
   "ignoreTests": false,
-  "suppressNotifications": ["prIgnoreNotification", "prEditedNotification"],
   "vulnerabilityAlerts": {
     "labels": [
       "security"
